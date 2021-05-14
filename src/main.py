@@ -101,3 +101,17 @@ m.addConstrs(
 )
 
 # 5.-
+m.addConstrs(
+    qexp[p, t, b, 0] == stock[p, t, b, 0]
+    for t in T
+    for b in B
+    for p in P
+)
+
+m.addConstrs(
+    qexp[p, t, b, e] == 0
+    for t in T
+    for b in B
+    for p in P
+    for e in range(1, exp[p]+1)
+)
