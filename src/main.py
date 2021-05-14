@@ -115,3 +115,39 @@ m.addConstrs(
     for p in P
     for e in range(1, exp[p]+1)
 )
+# 6.  No hay productospguardados en una bodega que no está habilitada para `p`.
+m.addConstrs(
+    stock[p, t, b, e] * vol[p] <= cap[b] * guarda[p, b]
+    for t in T
+    for b in B
+    for p in P
+    for e in range(0, exp[p]+1)
+)
+# 7.  No bajar del stock crítico
+m.addConstrs(
+    sum(stock[p, t, b, e] >= stock_crit[p, b]
+        for e in range(1, exp[p]+1))
+    for t in T
+    for b in B
+    for p in P
+)
+# 8.  El stock en el periodo `t = 0` es igual al stock inicial
+m.addConstrs(
+    stock[p, 0, b, e] == stock_init[p, b, e]
+    for b in B
+    for p in P
+    for e in range(0, exp[p]+1)
+)
+# 9.  Balance
+m.addConstrs(
+    stock[p, t+1, b, e-1] == stock[p, t, b, e] + qcomp[p, t, b, e] -
+    qvend[p, t, b, e] - qcons[p, t, b, e] - qexp[p, t, b, e] +
+    sum(qtransf[p, t, b1, b, e]
+        for b1 in B) -
+    sum(qtransf[p, t, b, b1, e]
+        for b1 in B)
+    for b in B
+    for p in P
+    for t in range(0, len(T)-1)
+    for e in range(1, exp[p]+1)
+)
